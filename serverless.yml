@@ -1,5 +1,6 @@
 service: cart-service
 
+useDotenv: true
 plugins:
   - serverless-offline
 
@@ -8,6 +9,13 @@ provider:
   runtime: nodejs14.x
   region: eu-west-2
   profile: student1
+
+  environment:
+    DB_HOST: ${env:DB_HOST}
+    DB_PORT: ${env:DB_PORT}
+    DB_USERNAME: ${env:DB_USERNAME}
+    DB_PASSWORD: ${env:DB_PASSWORD}
+    DB_CARTS_TABLE: ${env:DB_CARTS_TABLE}
 
 functions:
   main:
