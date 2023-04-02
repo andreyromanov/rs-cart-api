@@ -82,7 +82,7 @@ export class CartController {
       return item;
     });
     const total = calculateCartTotal(cart as unknown as Cart);
-    const order = this.orderService.create({
+    const order = await this.orderService.create({
       ...body, // TODO: validate and pick only necessary data
       userId,
       cartId,

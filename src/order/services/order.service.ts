@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, getConnection } from 'typeorm';
 
 import { Orders } from '../../database/entities/orders.entity';
 import { Order } from '../models';
@@ -18,20 +18,29 @@ export class OrderService {
     return this.orders[ orderId ];
   }
 
-  create(data: any) {
-    return this.ordersRepo.create({
+  async create(data: any) {
+    const order = {
       user_id: data.userId,
       cart_id: data.cartId,
-      payment: {
+      payment: JSON.stringify({
         "type": "CASH"
-      },
-      delivery: {
+      }),
+      delivery: JSON.stringify({
         "type": "SELF"
-      },
-      comments: 'First order',
+      }),
+      comments: 'First order11',
       status: 'ORDERED',
       total: data.total
-    });
+    } as Orders;
+
+    try {
+      await this.ordersRepo.manager.transaction(async (transactionalEntityManager) => {
+        await transactionalEntityManager.insert(Orders, order)
+      })
+    } catch (error) {
+      console.log(error.message);
+    }
+    return order;
   }
 
   update(orderId, data) {

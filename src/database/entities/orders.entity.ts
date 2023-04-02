@@ -20,10 +20,10 @@ import {
     cart_id: string;
 
     @Column({ type: 'json', nullable: false })
-    payment: any;
+    payment: string;
 
     @Column({ type: 'json', nullable: false })
-    delivery: any;
+    delivery: string;
 
     @Column({ type: 'text', nullable: false })
     comments: string;
