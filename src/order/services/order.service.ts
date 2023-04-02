@@ -1,10 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { v4 } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
+import { Orders } from '../../database/entities/orders.entity';
 import { Order } from '../models';
 
 @Injectable()
 export class OrderService {
+  constructor(
+    @InjectRepository(Orders)
+    private readonly ordersRepo: Repository<Orders>,
+  ) { }
+
   private orders: Record<string, Order> = {}
 
   findById(orderId: string): Order {
@@ -12,16 +19,19 @@ export class OrderService {
   }
 
   create(data: any) {
-    const id = v4(v4())
-    const order = {
-      ...data,
-      id,
-      status: 'inProgress',
-    };
-
-    this.orders[ id ] = order;
-
-    return order;
+    return this.ordersRepo.create({
+      user_id: data.userId,
+      cart_id: data.cartId,
+      payment: {
+        "type": "CASH"
+      },
+      delivery: {
+        "type": "SELF"
+      },
+      comments: 'First order',
+      status: 'ORDERED',
+      total: data.total
+    });
   }
 
   update(orderId, data) {

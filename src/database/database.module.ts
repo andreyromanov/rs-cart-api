@@ -2,17 +2,19 @@ import { Module, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Carts } from './entities/cart.entity';
 import { Cart_items } from './entities/cart_items.entity';
+import { Orders } from './entities/orders.entity';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CartModule } from '../cart/cart.module';
-
+import { OrderModule } from '../order/order.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
       imports: [
         ConfigModule,
-        forwardRef(() => CartModule)
+        forwardRef(() => CartModule),
+        forwardRef(() => OrderModule)
       ],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -26,7 +28,7 @@ import { CartModule } from '../cart/cart.module';
         synchronize: true,
       }),
     }),
-    TypeOrmModule.forFeature([Carts, Cart_items]),
+    TypeOrmModule.forFeature([Carts, Cart_items, Orders]),
   ],
   exports: [TypeOrmModule],
 })
