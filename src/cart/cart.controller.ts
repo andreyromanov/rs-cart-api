@@ -20,7 +20,13 @@ export class CartController {
   @Get()
   async findUserCart(@Req() req: AppRequest) {
     const cart = await this.cartService.findOrCreateByUserId(getUserIdFromRequest(req));
-
+    cart.items.forEach(item => {
+      // hardcoded price 
+      item.product = {
+        price: 100
+      }
+    });
+    
     return {
       statusCode: HttpStatus.OK,
       message: 'OK',
@@ -89,7 +95,8 @@ export class CartController {
       items,
       total,
     });
-
+    this.cartService.removeByUserId(userId);
+    
     return {
       statusCode: HttpStatus.OK,
       message: 'OK',

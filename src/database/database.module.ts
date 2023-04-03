@@ -3,10 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Carts } from './entities/cart.entity';
 import { Cart_items } from './entities/cart_items.entity';
 import { Orders } from './entities/orders.entity';
+import { Users } from './entities/users.entity';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CartModule } from '../cart/cart.module';
 import { OrderModule } from '../order/order.module';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -14,7 +16,8 @@ import { OrderModule } from '../order/order.module';
       imports: [
         ConfigModule,
         forwardRef(() => CartModule),
-        forwardRef(() => OrderModule)
+        forwardRef(() => OrderModule),
+        forwardRef(() => UsersModule)
       ],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -28,7 +31,7 @@ import { OrderModule } from '../order/order.module';
         synchronize: true,
       }),
     }),
-    TypeOrmModule.forFeature([Carts, Cart_items, Orders]),
+    TypeOrmModule.forFeature([Carts, Cart_items, Orders, Users]),
   ],
   exports: [TypeOrmModule],
 })

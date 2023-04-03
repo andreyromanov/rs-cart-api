@@ -24,3 +24,22 @@ INSERT INTO cart_items (cart_id, product_id, count) VALUES ('792e6f3e-6f26-44d6-
 INSERT INTO cart_items (cart_id, product_id, count) VALUES ('bd6718f2-5095-472f-bfda-e288318826dd', '123e4567-e89b-12d3-a456-426614174002', 2);
 INSERT INTO cart_items (cart_id, product_id, count) VALUES ('bd7c86f4-2efc-440e-acb8-795326fdda0a', '123e4567-e89b-12d3-a456-426614174003', 3);
 INSERT INTO cart_items (cart_id, product_id, count) VALUES ('a3973124-e7fe-4745-96bc-e7cc659ff3bb', '123e4567-e89b-12d3-a456-426614174004', 4);
+
+CREATE TYPE orderStatuses AS ENUM ('IN_PROGRESS', 'ORDERED');
+CREATE TABLE orders (
+   id uuid not null default uuid_generate_v4() primary key,
+   user_id uuid not null,
+   cart_id uuid references carts(id),
+   payment json NOT NULL,
+   delivery json NOT NULL,
+   comments text,
+   status orderStatuses,
+   total float
+);
+
+CREATE TABLE users (
+   id uuid not null default uuid_generate_v4() primary key,
+   name CHAR(50),
+   email CHAR(50),
+   password CHAR(50)
+)
