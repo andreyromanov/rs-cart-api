@@ -9,13 +9,13 @@ import {
     @PrimaryGeneratedColumn('uuid')
     id: string;
   
-    @Column({ type: 'string', nullable: false })
+    @Column({ type: 'text', nullable: false })
     name: string;
   
-    @Column({ type: 'string', nullable: true })
+    @Column({ type: 'text', nullable: true })
     email: string;
   
-    @Column({ type: 'string', nullable: true })
+    @Column({ type: 'text', nullable: true })
     password: string;
   }
   
