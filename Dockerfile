@@ -1,21 +1,48 @@
-FROM node:12.7.0-alpine
+# BUILD FOR LOCAL DEVELOPMENT
+FROM node:18-alpine As development
 
-# Set the working directory to /app
-WORKDIR '/app'
+# Create app directory
+WORKDIR /usr/src/app
 
-# Copy package.json to the working directory
-COPY package.json .
+# Copy application dependency manifests to the container image.
+COPY --chown=node:node package*.json ./
 
-# Install any needed packages specified in package.json
-RUN npm install
+RUN npm ci
 
+# Bundle app source
+COPY --chown=node:node . .
+
+# Use the node user from the image (instead of the root user)
+USER node
+
+# BUILD FOR PRODUCTION
+FROM node:18-alpine As build
+
+WORKDIR /usr/src/app
+
+COPY --chown=node:node package*.json ./
+
+# In order to run `npm run build` we need access to the Nest CLI which is a dev dependency. In the previous development stage we ran `npm ci` which installed all dependencies, so we can copy over the node_modules directory from the development image
+COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node . .
+
+# Run the build command which creates the production bundle
 RUN npm run build
 
-# Copying the rest of the code to the working directory
-COPY . .
+# Set NODE_ENV environment variable
+ENV NODE_ENV production
 
-# Make port 3000 available to the world outside this container
-EXPOSE 3000
+# Running `npm ci` removes the existing node_modules directory and passing in --only=production ensures that only the production dependencies are installed. This ensures that the node_modules directory is as optimized as possible
+RUN npm ci --only=production && npm cache clean --force
 
-# Run index.js when the container launches
-CMD ["node", "./dist/main.js"]
+USER node
+
+# PRODUCTION
+FROM node:18-alpine As production
+
+# Copy the bundled code from the build stage to the production image
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+
+# Start the server using the production build
+CMD [ "node", "dist/main.js" ]
